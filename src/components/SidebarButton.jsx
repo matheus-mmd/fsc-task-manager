@@ -5,7 +5,7 @@ const SidebarButton = ({ children, variant }) => {
     }
 
     if (variant === "selected") {
-      return "bg-brand-primary text-brand-primary"
+      return "bg-brand-primary bg-opacity-15 text-brand-primary"
     }
   }
 
