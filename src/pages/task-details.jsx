@@ -19,9 +19,11 @@ const TaskDetailsPage = () => {
   const navigate = useNavigate()
   const [saveIsLoading, setSaveIsLoading] = useState(false)
   const [errors, setErrors] = useState([])
+
   const titleRef = useRef()
   const descriptionRef = useRef()
   const timeRef = useRef()
+
   const handleBackClick = () => {
     navigate(-1)
   }
@@ -66,6 +68,7 @@ const TaskDetailsPage = () => {
     if (newErrors.length > 0) {
       return setSaveIsLoading(false)
     }
+
     const response = await fetch(`http://localhost:3000/tasks/${task.id}`, {
       method: "PATCH",
       body: JSON.stringify({
@@ -83,11 +86,24 @@ const TaskDetailsPage = () => {
     setSaveIsLoading(false)
     toast.success("Tarefa salva com sucesso!")
   }
+
+  const handleDeleteClick = async () => {
+    const response = await fetch(`http://localhost:3000/tasks/${task.id}`, {
+      method: "DELETE",
+    })
+    if (!response.ok) {
+      return toast.error("Ocorreu um erro ao deletar a tarefa.")
+    }
+    toast.success("Tarefa deletada com sucesso!")
+    navigate(-1)
+  }
+
   const titleError = errors.find((error) => error.inputName === "title")
   const timeError = errors.find((error) => error.inputName === "time")
   const descriptionError = errors.find(
     (error) => error.inputName === "description"
   )
+
   return (
     <div className="flex">
       <Sidebar />
@@ -116,7 +132,11 @@ const TaskDetailsPage = () => {
           </div>
 
           {/* parte da direita */}
-          <Button className="h-fit self-end" color="danger">
+          <Button
+            className="h-fit self-end"
+            color="danger"
+            onClick={handleDeleteClick}
+          >
             <TrashIcon />
             Deletar tarefa
           </Button>
