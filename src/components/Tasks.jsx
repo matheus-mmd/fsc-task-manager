@@ -38,26 +38,41 @@ const Tasks = () => {
     toast.success("Tarefa deletada com sucesso!")
   }
 
-  const handleTaskCheckboxClick = (taskId) => {
-    const newTasks = tasks.map((task) => {
-      if (task.id !== taskId) {
-        return task
-      }
-      if (task.status === "not_started") {
-        toast.success("Tarefa iniciada com sucesso!")
-        return { ...task, status: "in_progress" }
-      }
-      if (task.status === "in_progress") {
-        toast.success("Tarefa concluída com sucesso!")
-        return { ...task, status: "done" }
-      }
-      if (task.status === "done") {
-        toast.success("Tarefa reiniciada com sucesso!")
-        return { ...task, status: "not_started" }
-      }
-      return task
-    })
+  const handleTaskCheckboxClick = async (taskId) => {
+    const updatedTask = tasks.find((task) => task.id === taskId)
+
+    let newStatus
+    if (updatedTask.status === "not_started") {
+      toast.success("Tarefa iniciada com sucesso!")
+      newStatus = "in_progress"
+    } else if (updatedTask.status === "in_progress") {
+      toast.success("Tarefa concluída com sucesso!")
+      newStatus = "done"
+    } else if (updatedTask.status === "done") {
+      toast.success("Tarefa reiniciada com sucesso!")
+      newStatus = "not_started"
+    }
+
+    const newTasks = tasks.map((task) =>
+      task.id === taskId ? { ...task, status: newStatus } : task
+    )
     setTasks(newTasks)
+
+    try {
+      const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: newStatus }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Erro ao atualizar a tarefa")
+      }
+    } catch (error) {
+      toast.error("Erro ao atualizar a tarefa no banco de dados.")
+    }
   }
 
   const onTaskSubmitSuccess = (task) => {
